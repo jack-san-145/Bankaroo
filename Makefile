@@ -4,3 +4,5 @@ migrate_up:
 	migrate -path ./migrations -database "$(DB_URL)" up
 migrate_down:
 	migrate -path ./migrations -database "$(DB_URL)" down
+
+	migrate -path ./migrations -database root:root@tcp(db:3306)/Bank up

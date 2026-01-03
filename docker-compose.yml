@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  
+  bankserver:
+    build: .
+    container_name: bank_server_container
+    ports:
+      - "8999:8989"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    
+  db:
+    image: mysql:latest
+    container_name: bank_mysql_container
+    # ports:
+    #   - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: Bank
+    volumes:
+      - bank-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  bank-data:

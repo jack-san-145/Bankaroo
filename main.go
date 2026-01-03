@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 )
 
 var Db *sql.DB
@@ -32,12 +34,23 @@ func main() {
 
 	var err error
 
-	Db, err = sql.Open("mysql", "root:root@tcp(localhost:3307)/Bank")
+	url := os.Getenv("DOCKER_DB_URL")
+	fmt.Println("db conn - ", url)
+	if strings.HasPrefix(url, "mysql://") {
+		url = strings.TrimPrefix(url, "mysql://")
+	}
+
+	Db, err = sql.Open("mysql", url)
 	if err != nil {
 		log.Fatal("Database Connection failed - ", err)
 	} else {
 		fmt.Println("Database Connected")
 	}
+	err = Db.Ping()
+	if err != nil {
+		log.Println("Database connection failed:", err)
+	}
+	CreateTables()
 	defer Db.Close()
 
 	err = http.ListenAndServe(":8989", nil)
